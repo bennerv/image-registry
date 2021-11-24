@@ -9,7 +9,7 @@ import (
 	dcontext "github.com/docker/distribution/context"
 	"github.com/docker/distribution/reference"
 	"github.com/docker/distribution/registry/api/errcode"
-	"github.com/docker/distribution/registry/api/v2"
+	v2 "github.com/docker/distribution/registry/api/v2"
 	"github.com/docker/distribution/registry/storage"
 	"github.com/gorilla/handlers"
 	"github.com/opencontainers/go-digest"
@@ -22,6 +22,15 @@ func blobUploadDispatcher(ctx *Context, r *http.Request) http.Handler {
 		Context: ctx,
 		UUID:    getUploadUUID(ctx),
 	}
+
+	dcontext.GetLoggerWithFields(ctx, map[interface{}]interface{}{
+		"method":         r.Method,
+		"proto":          r.Proto,
+		"headers":        r.Header,
+		"content length": r.ContentLength,
+		"requestURI":     r.RequestURI,
+		"host":           r.Host,
+	}, "method", "proto", "headers", "content length", "requestURI", "host").Infof("blob upload dispatcher request")
 
 	handler := handlers.MethodHandler{
 		"GET":  http.HandlerFunc(buh.GetUploadStatus),
@@ -178,7 +187,7 @@ func (buh *blobUploadHandler) PatchBlobData(w http.ResponseWriter, r *http.Reque
 	}
 
 	// TODO(dmcgowan): support Content-Range header to seek and write range
-
+	fmt.Println("blob patch")
 	if err := copyFullPayload(buh, w, r, buh.Upload, -1, "blob PATCH"); err != nil {
 		buh.Errors = append(buh.Errors, errcode.ErrorCodeUnknown.WithDetail(err.Error()))
 		return

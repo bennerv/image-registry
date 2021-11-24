@@ -35,6 +35,14 @@ func copyFullPayload(ctx context.Context, responseWriter http.ResponseWriter, r 
 
 	// Read in the data, if any.
 	copied, err := io.Copy(destWriter, body)
+
+	dcontext.GetLoggerWithFields(ctx, map[interface{}]interface{}{
+		"copied":        copied,
+		"contentLength": r.ContentLength,
+		"action":        action,
+		"clientClosed?": clientClosed != nil,
+	}, "copied", "contentLength", action).Info("wrote payload to Azure")
+
 	if clientClosed != nil && (err != nil || (r.ContentLength > 0 && copied < r.ContentLength)) {
 		// Didn't receive as much content as expected. Did the client
 		// disconnect during the request? If so, avoid returning a 400

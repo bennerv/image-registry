@@ -72,6 +72,7 @@ func (hrs *httpReadSeeker) Read(p []byte) (n int, err error) {
 	// seeking to the end to determine the length, and then seeking
 	// back to the original position.
 	if hrs.readerOffset != hrs.seekOffset {
+		fmt.Println("reader offset != seekOffset - resetting connection")
 		hrs.reset()
 	}
 

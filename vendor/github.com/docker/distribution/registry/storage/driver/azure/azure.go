@@ -189,6 +189,7 @@ func (d *driver) Reader(ctx context.Context, path string, offset int64) (io.Read
 // Writer returns a FileWriter which will store the content written to it
 // at the location designated by "path" after the call to Commit.
 func (d *driver) Writer(ctx context.Context, path string, append bool) (storagedriver.FileWriter, error) {
+	fmt.Println("in azure writer")
 	blobRef := d.client.GetContainerReference(d.container).GetBlobReference(path)
 	blobExists, err := blobRef.Exists()
 	if err != nil {
@@ -197,8 +198,10 @@ func (d *driver) Writer(ctx context.Context, path string, append bool) (storaged
 	var size int64
 	if blobExists {
 		if append {
+			fmt.Println("blob exists and we're appending")
 			err = blobRef.GetProperties(nil)
 			if err != nil {
+				fmt.Println("blob exists, we're appending, and we hit an error on GetProperties")
 				return nil, err
 			}
 			blobProperties := blobRef.Properties
